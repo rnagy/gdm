@@ -37,7 +37,12 @@ gdm_screenshot_dir = (get_option('screenshot-dir') != '')? get_option('screensho
 config_h_dir = include_directories('.')
 
 # Dependencies
-udev_dep = dependency('udev')
+if host_machine.system() == 'linux'
+  udev_dep = dependency('udev')
+else
+  udev_dep = declare_dependency()
+  udev_dir = '/nonexistent'
+endif
 
 glib_min_version = '2.56.0'
 
@@ -93,9 +98,14 @@ if xdmcp_dep.found() and get_option('tcp-wrappers')
   libwrap_dep = cc.find_library('libwrap')
 endif
 # systemd
-systemd_dep = dependency('systemd')
-libsystemd_dep = dependency('libsystemd')
-if meson.version().version_compare('>= 0.53')
+if host_machine.system() == 'linux'
+  systemd_dep = dependency('systemd')
+  libsystemd_dep = dependency('libsystemd')
+else
+  systemd_dep = declare_dependency()
+  libsystemd_dep = declare_dependency()
+endif
+if meson.version().version_compare('>= 0.53') and host_machine.system() == 'linux'
   systemd_multiseat_x = find_program('systemd-multi-seat-x',
     required: false,
     dirs: [
