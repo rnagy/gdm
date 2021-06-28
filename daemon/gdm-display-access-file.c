@@ -337,9 +337,18 @@ _create_xauth_file_for_user (const char  *username,
         g_debug ("GdmDisplayAccessFile: creating %s", auth_filename);
         /* mode 00600 */
         errno = 0;
-        fd = g_open (auth_filename,
-                     O_RDWR | O_CREAT | O_EXCL | O_BINARY,
-                     S_IRUSR | S_IWUSR);
+#if defined(__OpenBSD__)
+        if (uid == 676) {
+                fd = g_open (auth_filename,
+                             O_RDWR | O_CREAT | O_EXCL | O_BINARY,
+                             S_IRUSR | S_IWUSR | S_IRGRP);
+        } else
+#endif
+        {
+                fd = g_open (auth_filename,
+                             O_RDWR | O_CREAT | O_EXCL | O_BINARY,
+                             S_IRUSR | S_IWUSR);
+        }
 
         if (fd < 0) {
                 g_set_error (error,
