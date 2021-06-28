@@ -29,6 +29,20 @@
 
 #define REGISTER_SESSION_TIMEOUT 10
 
+#if defined(WITH_SYSTEMD)
+#define SEAT_ID              "seat0"
+#elif defined(WITH_CONSOLE_KIT)
+#define CK_NAME              "org.freedesktop.ConsoleKit"
+#define CK_PATH              "/org/freedesktop/ConsoleKit"
+#define CK_INTERFACE         "org.freedesktop.ConsoleKit"
+
+#define CK_MANAGER_PATH      "/org/freedesktop/ConsoleKit/Manager"
+#define CK_MANAGER_INTERFACE "org.freedesktop.ConsoleKit.Manager"
+#define CK_SEAT_INTERFACE    "org.freedesktop.ConsoleKit.Seat"
+#define CK_SESSION_INTERFACE "org.freedesktop.ConsoleKit.Session"
+#define SEAT_ID              "/org/freedesktop/ConsoleKit/Seat1"
+#endif
+
 #define        VE_IGNORE_EINTR(expr) \
         do {                         \
                 errno = 0;           \
