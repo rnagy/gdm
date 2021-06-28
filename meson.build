@@ -37,7 +37,12 @@ gdm_screenshot_dir = (get_option('screenshot-dir') != '')? get_option('screensho
 config_h_dir = include_directories('.')
 
 # Dependencies
-udev_dep = dependency('udev')
+if host_machine.system() == 'linux'
+  udev_dep = dependency('udev')
+else
+  udev_dep = declare_dependency()
+  udev_dir = '/nonexistent'
+endif
 
 glib_min_version = '2.56.0'
 
@@ -93,9 +98,14 @@ if xdmcp_dep.found() and get_option('tcp-wrappers')
   libwrap_dep = cc.find_library('libwrap')
 endif
 # systemd
-systemd_dep = dependency('systemd')
-libsystemd_dep = dependency('libsystemd')
-if meson.version().version_compare('>= 0.53')
+if host_machine.system() == 'linux'
+  systemd_dep = dependency('systemd')
+  libsystemd_dep = dependency('libsystemd')
+else
+  systemd_dep = declare_dependency()
+  libsystemd_dep = declare_dependency()
+endif
+if host_machine.system() == 'linux'
   systemd_multiseat_x = find_program('systemd-multi-seat-x',
     required: false,
     dirs: [
@@ -251,6 +261,7 @@ conf.set('HAVE_UT_UT_TIME', utmp_has_time_field)
 conf.set('HAVE_UT_UT_TV', utmp_has_tv_field)
 conf.set('HAVE_UT_UT_SYSLEN', utmp_has_syslen_field)
 conf.set('ENABLE_IPV6', get_option('ipv6'))
+conf.set('HAVE_SIGWAITINFO', cc.has_function('sigwaitinfo'))
 configure_file(output: 'config.h', configuration: conf)
 
 # Subdirs
