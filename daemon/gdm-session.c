@@ -115,6 +115,9 @@ struct _GdmSession
 
         /* object lifetime scope */
         char                *session_type;
+#ifdef WITH_CONSOLE_KIT
+        char                *session_class;
+#endif
         char                *display_name;
         char                *display_hostname;
         char                *display_device;
@@ -360,7 +363,9 @@ get_system_session_dirs (GdmSession *self)
                 DATADIR "/xsessions/",
         };
 
+#ifdef ENABLE_WAYLAND_SUPPORT
         static const char *wayland_search_dir = DATADIR "/wayland-sessions/";
+#endif
 
         search_array = g_array_new (TRUE, TRUE, sizeof (char *));
 
@@ -2713,7 +2718,30 @@ send_session_type (GdmSession *self,
                                                        session_type,
                                                        conversation->worker_cancellable,
                                                        NULL, NULL);
+#ifdef WITH_CONSOLE_KIT
+        gdm_dbus_worker_call_set_session_type (conversation->worker_proxy,
+                                               session_type,
+                                               NULL, NULL, NULL);
+#endif
 }
+
+#ifdef WITH_CONSOLE_KIT
+static void
+send_session_class (GdmSession *self,
+                    GdmSessionConversation *conversation)
+{
+        const char *session_class = "greeter";
+
+        if (self->session_class != NULL) {
+                session_class = self->session_class;
+        }
+
+        gdm_dbus_worker_call_set_session_class (conversation->worker_proxy,
+                                               session_class,
+                                               NULL, NULL, NULL);
+}
+#endif
+
 
 void
 gdm_session_open_session (GdmSession *self,
@@ -2728,6 +2756,9 @@ gdm_session_open_session (GdmSession *self,
         if (conversation != NULL) {
                 send_display_mode (self, conversation);
                 send_session_type (self, conversation);
+#ifdef WITH_CONSOLE_KIT
+                send_session_class (self, conversation);
+#endif
 
                 gdm_dbus_worker_call_open (conversation->worker_proxy,
                                            conversation->worker_cancellable,
@@ -3334,6 +3365,29 @@ gdm_session_select_program (GdmSession *self,
 
         self->selected_program = g_strdup (text);
 }
+
+#ifdef WITH_CONSOLE_KIT
+void
+gdm_session_select_session_type (GdmSession *self,
+                                 const char *text)
+{
+        GHashTableIter iter;
+        gpointer key, value;
+
+        g_debug ("GdmSession: selecting session type '%s'", text);
+
+        g_hash_table_iter_init (&iter, self->conversations);
+        while (g_hash_table_iter_next (&iter, &key, &value)) {
+                GdmSessionConversation *conversation;
+
+                conversation = (GdmSessionConversation *) value;
+
+                gdm_dbus_worker_call_set_session_type (conversation->worker_proxy,
+                                                       text,
+                                                       NULL, NULL, NULL);
+        }
+}
+#endif
 
 void
 gdm_session_select_session (GdmSession *self,
