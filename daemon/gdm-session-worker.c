@@ -1774,7 +1774,11 @@ _lookup_passwd_info (const char *username,
                 if (passwd_entry->pw_shell != NULL && passwd_entry->pw_shell[0] != '\0') {
                         *shellp = g_strdup (passwd_entry->pw_shell);
                 } else {
+#if defined(__OpenBSD__)
                         *shellp = g_strdup ("/bin/ksh");
+#else
+                        *shellp = g_strdup ("/bin/bash");
+#endif
                 }
         }
         ret = TRUE;
