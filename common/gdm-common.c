@@ -356,11 +356,18 @@ create_transient_display (GDBusConnection *connection,
 
 #ifdef WITH_CONSOLE_KIT
 int
+sd_seat_can_graphical(const char *seat)
+{
+        // XXX
+        return 1;
+}
+
+int
 sd_session_get_service(const char *session,
                        char **service)
 {
-        // XXX
-        *service = "gdm-launch-environment";
+        // XXX never return "gdm-launch-environment"
+        *service = g_strdup("XXXFUCKTHISSHITXXX");
         return 0;
 }
 
@@ -411,7 +418,9 @@ sd_seat_get_sessions(const char   *seat,
 {
         GError *local_error = NULL;
         GVariant *reply;
-        char **value;
+        GVariantIter *iter;
+        gchar *value = NULL;
+        glong nchild;
         g_autoptr(GDBusConnection) connection = NULL;
 
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
@@ -436,19 +445,22 @@ sd_seat_get_sessions(const char   *seat,
                 return -1;
         }
 
-        g_variant_get (reply, "(^ao)", &value);
+        g_variant_get (reply, "(ao)", &iter);
         g_variant_unref (reply);
 
-        const char *ssid;
-        GVariantIter iter;
-        GVariant *array = g_variant_get_child_value (reply, 0);
-        g_variant_iter_init (&iter, array);
-
-        while (g_variant_iter_loop (&iter, "(&ao)", &ssid, NULL)) {
-                g_warning("Session: %s\n", ssid);
+        nchild = g_variant_iter_n_children(iter);
+        *sessions = calloc(nchild, sizeof(gchar *));
+        if (*sessions == NULL) {
+                g_warning ("Unable to allocate memory for sessions array: %s", g_strerror(errno));
+                return -ENOMEM;
         }
 
-        *sessions = value;
+        while (g_variant_iter_next (iter, "o", &value)) {
+                (*sessions)[nchild - 1] = g_strdup(value);
+        }
+        (*sessions)[nchild] = NULL;
+
+        g_variant_iter_free (iter);
 
         return 0;
 }
@@ -459,7 +471,7 @@ sd_session_get_seat(const char *session,
 {
         GError *local_error = NULL;
         GVariant *reply;
-        char *session_id = NULL;
+        const char *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
@@ -470,25 +482,7 @@ sd_session_get_seat(const char *session,
 
         reply = g_dbus_connection_call_sync (connection,
                                              CK_NAME,
-                                             CK_MANAGER_PATH,
-                                             CK_MANAGER_INTERFACE,
-                                             "GetCurrentSession",
-                                             NULL, /* parameters */
-                                             G_VARIANT_TYPE ("(o)"),
-                                             G_DBUS_CALL_FLAGS_NONE,
-                                             -1,
-                                             NULL, &local_error);
-        if (reply == NULL) {
-                g_warning ("Unable to determine session: %s", local_error->message);
-                g_error_free (local_error);
-                return -1;
-        }
-
-        g_variant_get (reply, "(o)", session_id);
-
-        reply = g_dbus_connection_call_sync (connection,
-                                             CK_NAME,
-                                             session_id,
+                                             session,
                                              CK_SESSION_INTERFACE,
                                              "GetSeatId",
                                              NULL, /* parameters */
@@ -502,8 +496,10 @@ sd_session_get_seat(const char *session,
                 return -1;
         }
 
-        g_variant_get (reply, "(o)", seat);
+        g_variant_get (reply, "(o)", &value);
         g_variant_unref (reply);
+
+        *seat = g_strdup(value);
 
         return 0;
 }
@@ -630,17 +626,20 @@ sd_session_get_state(const char *session, char **state)
         const char *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
                                              CK_NAME,
                                              session,
                                              CK_SESSION_INTERFACE,
-                                             "GetSessionType",
+                                             "GetSessionState",
                                              NULL,
                                              G_VARIANT_TYPE ("(s)"),
                                              G_DBUS_CALL_FLAGS_NONE,
@@ -649,10 +648,10 @@ sd_session_get_state(const char *session, char **state)
         if (reply == NULL) {
                 g_warning ("Unable to determine session state: %s", local_error->message);
                 g_error_free (local_error);
-                return FALSE;
+                return -ENXIO;
         }
 
-        g_variant_get (reply, "(&s)", &value);
+        g_variant_get (reply, "(s)", &value);
         g_variant_unref (reply);
 
         *state = g_strdup (value);
@@ -665,7 +664,9 @@ sd_uid_get_sessions(uid_t uid, int require_active, char ***sessions)
 {
         GError *local_error = NULL;
         GVariant *reply;
-        char **value;
+        GVariantIter *iter;
+        gchar *value = NULL;
+        glong nchild;
         g_autoptr(GDBusConnection) connection = NULL;
 
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
@@ -690,10 +691,22 @@ sd_uid_get_sessions(uid_t uid, int require_active, char ***sessions)
                 return -1;
         }
 
-        g_variant_get (reply, "(^ao)", &value);
+        g_variant_get (reply, "(ao)", &iter);
         g_variant_unref (reply);
 
-        *sessions = value;
+        nchild = g_variant_iter_n_children(iter);
+        *sessions = calloc(nchild, sizeof(gchar *));
+        if (*sessions == NULL) {
+                g_warning ("Unable to allocate memory for sessions array: %s", g_strerror(errno));
+                return -ENOMEM;
+        }
+
+        while (g_variant_iter_next (iter, "o", &value)) {
+                (*sessions)[nchild - 1] = g_strdup(value);
+        }
+        (*sessions)[nchild] = NULL;
+
+        g_variant_iter_free (iter);
 
         return 0;
 }
@@ -831,8 +844,6 @@ gdm_get_login_window_session_id (const char  *seat_id,
                         goto out;
                 }
 
-                g_warning("FOOOOBAR %s FOOOBAR", service_id);
-
                 if (strcmp (service_id, "gdm-launch-environment") == 0) {
                         *session_id = g_strdup (sessions[i]);
                         ret = TRUE;
@@ -905,7 +916,7 @@ goto_login_session (GDBusConnection  *connection,
                 }
         }
 
-        if (! ret && g_strcmp0 (seat_id, "seat0") == 0) {
+        if (! ret && g_strcmp0 (seat_id, SEAT_ID) == 0) {
                 res = create_transient_display (connection, error);
                 if (res) {
                         ret = TRUE;

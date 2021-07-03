@@ -102,15 +102,6 @@ static gboolean lookup_by_session_id (const char *id,
                                       gpointer    user_data);
 #endif
 
-#if defined(WITH_CONSOLE_KIT)
-int
-sd_seat_can_graphical(const char *seat)
-{
-        // XXX
-        return 1;
-}
-#endif
-
 G_DEFINE_TYPE (GdmLocalDisplayFactory, gdm_local_display_factory, GDM_TYPE_DISPLAY_FACTORY)
 
 GQuark

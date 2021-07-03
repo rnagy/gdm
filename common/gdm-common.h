@@ -68,6 +68,9 @@ sd_session_get_state(const char *session, char **state);
 int
 sd_session_get_service(const char *session,
                        char **service);
+
+int
+sd_seat_can_graphical(const char *seat);
 #endif
 
 #define        VE_IGNORE_EINTR(expr) \
