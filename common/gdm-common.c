@@ -391,7 +391,7 @@ sd_session_get_service(const char *session,
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine session service: %s", local_error->message);
+                g_warning ("Unable to determine session service: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -ENXIO;
         }
@@ -430,7 +430,7 @@ sd_session_get_uid(const char *session,
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to get session for unix user: %s", local_error->message);
+                g_warning ("Unable to get session for unix service: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -1;
         }
@@ -527,7 +527,7 @@ sd_session_get_seat(const char *session,
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine seat: %s", local_error->message);
+                g_warning ("Unable to determine seat: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -1;
         }
@@ -565,7 +565,7 @@ sd_pid_get_session(pid_t pid, char **session)
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to list sessions: %s", local_error->message);
+                g_warning ("Unable to list sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -1;
         }
@@ -603,7 +603,7 @@ sd_session_get_type(const char *session, char **type)
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine session type: %s", local_error->message);
+                g_warning ("Unable to determine session type: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return FALSE;
         }
@@ -641,7 +641,7 @@ sd_session_get_class(const char *session, char **class)
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine session class: %s", local_error->message);
+                g_warning ("Unable to determine session class: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return FALSE;
         }
@@ -682,7 +682,7 @@ sd_session_get_state(const char *session, char **state)
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine session state: %s", local_error->message);
+                g_warning ("Unable to determine session state: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -ENXIO;
         }
@@ -722,7 +722,7 @@ sd_uid_get_sessions(uid_t uid, int require_active, char ***sessions)
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to list sessions: %s", local_error->message);
+                g_warning ("Unable to list sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return -1;
         }
