@@ -2718,30 +2718,7 @@ send_session_type (GdmSession *self,
                                                        session_type,
                                                        conversation->worker_cancellable,
                                                        NULL, NULL);
-#ifdef WITH_CONSOLE_KIT
-        gdm_dbus_worker_call_set_session_type (conversation->worker_proxy,
-                                               session_type,
-                                               NULL, NULL, NULL);
-#endif
 }
-
-#ifdef WITH_CONSOLE_KIT
-static void
-send_session_class (GdmSession *self,
-                    GdmSessionConversation *conversation)
-{
-        const char *session_class = "greeter";
-
-        if (self->session_class != NULL) {
-                session_class = self->session_class;
-        }
-
-        gdm_dbus_worker_call_set_session_class (conversation->worker_proxy,
-                                               session_class,
-                                               NULL, NULL, NULL);
-}
-#endif
-
 
 void
 gdm_session_open_session (GdmSession *self,
@@ -2756,9 +2733,6 @@ gdm_session_open_session (GdmSession *self,
         if (conversation != NULL) {
                 send_display_mode (self, conversation);
                 send_session_type (self, conversation);
-#ifdef WITH_CONSOLE_KIT
-                send_session_class (self, conversation);
-#endif
 
                 gdm_dbus_worker_call_open (conversation->worker_proxy,
                                            conversation->worker_cancellable,

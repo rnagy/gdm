@@ -151,6 +151,7 @@ struct GdmSessionWorkerPrivate
 #ifdef WITH_CONSOLE_KIT
         char             *session_type;
         char             *session_class;
+        char             *session_service;
 #endif
         char             *session_id;
         uid_t             uid;
@@ -219,6 +220,12 @@ typedef int (* GdmSessionWorkerPamNewMessagesFunc) (int,
                                                     struct pam_response **,
                                                     gpointer);
 
+#ifdef WITH_CONSOLE_KIT
+static char *
+gdm_session_worker_get_environment_variable (GdmSessionWorker *worker,
+                                             const char       *key);
+#endif
+
 G_DEFINE_TYPE_WITH_CODE (GdmSessionWorker,
                          gdm_session_worker,
                          GDM_DBUS_TYPE_WORKER_SKELETON,
@@ -240,8 +247,6 @@ open_ck_session (GdmSessionWorker  *worker)
         const char       *display_name;
         const char       *display_device;
         const char       *display_hostname;
-        const char       *session_type;
-        const char       *session_class;
         gint32            uid;
 
         g_assert (worker->priv->session_cookie == NULL);
@@ -260,18 +265,6 @@ open_ck_session (GdmSessionWorker  *worker)
                 display_device = worker->priv->display_device;
         } else {
                 display_device = "";
-        }
-
-        if (worker->priv->session_type != NULL) {
-                session_type = worker->priv->session_type;
-        } else {
-                session_type = "";
-        }
-
-        if (worker->priv->session_class != NULL) {
-                session_class = worker->priv->session_class;
-        } else {
-                session_class = "";
         }
 
         g_assert (worker->priv->username != NULL);
@@ -300,8 +293,21 @@ open_ck_session (GdmSessionWorker  *worker)
         g_variant_builder_add_parsed (&builder, "('x11-display', <%s>)", display_name);
         g_variant_builder_add_parsed (&builder, "('remote-host-name', <%s>)", display_hostname);
         g_variant_builder_add_parsed (&builder, "('is-local', <%b>)", worker->priv->display_is_local);
-        g_variant_builder_add_parsed (&builder, "('session-type', <%s>)", session_type);
-        g_variant_builder_add_parsed (&builder, "('session-class', <%s>)", session_class);
+
+        worker->priv->session_type = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_TYPE");
+        if (worker->priv->session_type != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-type', <%s>)", worker->priv->session_type);
+        }
+
+        worker->priv->session_class = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_CLASS");
+        if (worker->priv->session_class != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-class', <%s>)", worker->priv->session_class);
+        }
+
+        worker->priv->session_service = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_SERVICE");
+        if (worker->priv->session_service != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-service', <%s>)", worker->priv->session_service);
+        }
 
         parameters = g_variant_builder_end (&builder);
         in_args = g_variant_new_tuple (&parameters, 1);
@@ -1456,6 +1462,10 @@ gdm_session_worker_initialize_pam (GdmSessionWorker   *worker,
         if (seat_id != NULL && seat_id[0] != '\0') {
                 gdm_session_worker_set_environment_variable (worker, "XDG_SEAT", seat_id);
         }
+
+#ifdef WITH_CONSOLE_KIT
+        gdm_session_worker_set_environment_variable (worker, "XDG_SESSION_SERVICE", service);
+#endif
 
         if (strcmp (service, "gdm-launch-environment") == 0) {
                 gdm_session_worker_set_environment_variable (worker, "XDG_SESSION_CLASS", "greeter");
@@ -2899,34 +2909,6 @@ gdm_session_worker_handle_set_session_name (GdmDBusWorker         *object,
         return TRUE;
 }
 
-#ifdef WITH_CONSOLE_KIT
-static gboolean
-gdm_session_worker_handle_set_session_type (GdmDBusWorker         *object,
-                                            GDBusMethodInvocation *invocation,
-                                            const char            *session_type)
-{
-        GdmSessionWorker *worker = GDM_SESSION_WORKER (object);
-        g_debug ("GdmSessionWorker: session type set to %s", session_type);
-        g_free (worker->priv->session_type);
-        worker->priv->session_type = g_strdup (session_type);
-        gdm_dbus_worker_complete_set_session_type (object, invocation);
-        return TRUE;
-}
-
-static gboolean
-gdm_session_worker_handle_set_session_class (GdmDBusWorker         *object,
-                                             GDBusMethodInvocation *invocation,
-                                             const char            *session_class)
-{
-        GdmSessionWorker *worker = GDM_SESSION_WORKER (object);
-        g_debug ("GdmSessionWorker: session class set to %s", session_class);
-        g_free (worker->priv->session_class);
-        worker->priv->session_class = g_strdup (session_class);
-        gdm_dbus_worker_complete_set_session_class (object, invocation);
-        return TRUE;
-}
-#endif
-
 static gboolean
 gdm_session_worker_handle_set_session_display_mode (GdmDBusWorker         *object,
                                                     GDBusMethodInvocation *invocation,
@@ -3843,10 +3825,6 @@ worker_interface_init (GdmDBusWorkerIface *interface)
         interface->handle_open = gdm_session_worker_handle_open;
         interface->handle_set_language_name = gdm_session_worker_handle_set_language_name;
         interface->handle_set_session_name = gdm_session_worker_handle_set_session_name;
-#ifdef WITH_CONSOLE_KIT
-        interface->handle_set_session_type = gdm_session_worker_handle_set_session_type;
-        interface->handle_set_session_class = gdm_session_worker_handle_set_session_class;
-#endif
         interface->handle_set_session_display_mode = gdm_session_worker_handle_set_session_display_mode;
         interface->handle_set_environment_variable = gdm_session_worker_handle_set_environment_variable;
         interface->handle_start_program = gdm_session_worker_handle_start_program;

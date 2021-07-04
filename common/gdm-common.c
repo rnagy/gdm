@@ -366,8 +366,41 @@ int
 sd_session_get_service(const char *session,
                        char **service)
 {
-        // XXX never return "gdm-launch-environment"
-        *service = g_strdup("XXXFUCKTHISSHITXXX");
+        GError *local_error = NULL;
+        GVariant *reply;
+        const char *value;
+        g_autoptr(GDBusConnection) connection = NULL;
+
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
+        connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
+        if (connection == NULL) {
+                g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
+                return -ENXIO;
+        }
+
+        reply = g_dbus_connection_call_sync (connection,
+                                             CK_NAME,
+                                             session,
+                                             CK_SESSION_INTERFACE,
+                                             "GetSessionService",
+                                             NULL,
+                                             G_VARIANT_TYPE ("(s)"),
+                                             G_DBUS_CALL_FLAGS_NONE,
+                                             -1,
+                                             NULL, &local_error);
+        if (reply == NULL) {
+                g_warning ("Unable to determine session service: %s", local_error->message);
+                g_error_free (local_error);
+                return -ENXIO;
+        }
+
+        g_variant_get (reply, "(s)", &value);
+        g_variant_unref (reply);
+
+        *service = g_strdup (value);
+
         return 0;
 }
 
@@ -423,10 +456,13 @@ sd_seat_get_sessions(const char   *seat,
         glong nchild;
         g_autoptr(GDBusConnection) connection = NULL;
 
+        if (seat == NULL || !g_variant_is_object_path (seat))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -442,7 +478,7 @@ sd_seat_get_sessions(const char   *seat,
         if (reply == NULL) {
                 g_warning ("Unable to list sessions: %s", local_error->message);
                 g_error_free (local_error);
-                return -1;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(ao)", &iter);
@@ -585,7 +621,7 @@ sd_session_get_class(const char *session, char **class)
 {
         GError *local_error = NULL;
         GVariant *reply;
-        const char *value;
+        const gchar *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
@@ -745,7 +781,7 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              -1,
                                              NULL, &local_error);
         if (reply == NULL) {
-                g_warning ("Unable to determine if can activate sessions: %s", local_error->message);
+                g_warning ("Unable to determine if can activate sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
                 return FALSE;
         }
