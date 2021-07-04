@@ -420,9 +420,9 @@ sd_session_get_uid(const char *session,
         }
 
         reply = g_dbus_connection_call_sync (connection,
-                                             "org.freedesktop.ConsoleKit",
+                                             CK_NAME,
                                              session,
-                                             "org.freedesktop.ConsoleKit.Session",
+                                             CK_SESSION_INTERFACE,
                                              "GetUnixUser",
                                              NULL,
                                              G_VARIANT_TYPE ("(u)"),

@@ -313,9 +313,9 @@ open_ck_session (GdmSessionWorker  *worker)
         in_args = g_variant_new_tuple (&parameters, 1);
 
         reply = g_dbus_connection_call_sync (system_bus,
-                                             "org.freedesktop.ConsoleKit",
-                                             "/org/freedesktop/ConsoleKit/Manager",
-                                             "org.freedesktop.ConsoleKit.Manager",
+                                             CK_NAME,
+                                             CK_MANAGER_PATH,
+                                             CK_MANAGER_INTERFACE,
                                              "OpenSessionWithParameters",
                                              in_args,
                                              G_VARIANT_TYPE ("(s)"),
@@ -362,9 +362,9 @@ close_ck_session (GdmSessionWorker *worker)
         }
 
         reply = g_dbus_connection_call_sync (system_bus,
-                                             "org.freedesktop.ConsoleKit",
-                                             "/org/freedesktop/ConsoleKit/Manager",
-                                             "org.freedesktop.ConsoleKit.Manager",
+                                             CK_NAME,
+                                             CK_MANAGER_PATH,
+                                             CK_MANAGER_INTERFACE,
                                              "CloseSession",
                                              g_variant_new ("(s)", worker->priv->session_cookie),
                                              G_VARIANT_TYPE ("(b)"),
