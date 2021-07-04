@@ -413,10 +413,13 @@ sd_session_get_uid(const char *session,
         g_autoptr(GDBusConnection) connection = NULL;
         uid_t local_uid;
 
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -432,7 +435,7 @@ sd_session_get_uid(const char *session,
         if (reply == NULL) {
                 g_warning ("Unable to get session for unix service: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return -1;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(u)", &local_uid);
@@ -510,10 +513,13 @@ sd_session_get_seat(const char *session,
         const char *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -529,7 +535,7 @@ sd_session_get_seat(const char *session,
         if (reply == NULL) {
                 g_warning ("Unable to determine seat: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return -1;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(o)", &value);
@@ -551,7 +557,7 @@ sd_pid_get_session(pid_t pid, char **session)
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -567,7 +573,7 @@ sd_pid_get_session(pid_t pid, char **session)
         if (reply == NULL) {
                 g_warning ("Unable to list sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return -1;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(o)", &value);
@@ -586,10 +592,13 @@ sd_session_get_type(const char *session, char **type)
         const char *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -605,7 +614,7 @@ sd_session_get_type(const char *session, char **type)
         if (reply == NULL) {
                 g_warning ("Unable to determine session type: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return FALSE;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(s)", &value);
@@ -624,10 +633,13 @@ sd_session_get_class(const char *session, char **class)
         const gchar *value;
         g_autoptr(GDBusConnection) connection = NULL;
 
+        if (session == NULL || !g_variant_is_object_path (session))
+                return -ENXIO;
+
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -643,7 +655,7 @@ sd_session_get_class(const char *session, char **class)
         if (reply == NULL) {
                 g_warning ("Unable to determine session class: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return FALSE;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(s)", &value);
@@ -708,7 +720,7 @@ sd_uid_get_sessions(uid_t uid, int require_active, char ***sessions)
         connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
         if (connection == NULL) {
                 g_warning ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                return -1;
+                return -ENXIO;
         }
 
         reply = g_dbus_connection_call_sync (connection,
@@ -724,7 +736,7 @@ sd_uid_get_sessions(uid_t uid, int require_active, char ***sessions)
         if (reply == NULL) {
                 g_warning ("Unable to list sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
-                return -1;
+                return -ENXIO;
         }
 
         g_variant_get (reply, "(ao)", &iter);
