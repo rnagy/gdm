@@ -1056,17 +1056,6 @@ worker_on_saved_session_type_read (GdmDBusWorker          *worker,
         self->saved_session_type = g_strdup (session_type);
 }
 
-static void
-worker_on_saved_session_type_read (GdmDBusWorker          *worker,
-                                   const char             *session_type,
-                                   GdmSessionConversation *conversation)
-{
-        GdmSession *self = conversation->session;
-
-        g_free (self->saved_session_type);
-        self->saved_session_type = g_strdup (session_type);
-}
-
 static GdmSessionConversation *
 find_conversation_by_pid (GdmSession *self,
                           GPid        pid)
