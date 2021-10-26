@@ -239,7 +239,11 @@ struct GdmDisplayServerConfiguration {
 #ifdef ENABLE_WAYLAND_SUPPORT
         { "wayland", GDM_KEY_WAYLAND_ENABLE, "/usr/bin/Xwayland", "wayland" },
 #endif
+#if defined(__OpenBSD__)
+        { "xorg", GDM_KEY_XORG_ENABLE, "/usr/X11R6/bin/Xorg", "x11" },
+#else
         { "xorg", GDM_KEY_XORG_ENABLE, "/usr/bin/Xorg", "x11" },
+#endif
         { NULL, NULL, NULL },
 };
 
