@@ -548,7 +548,7 @@ on_display_status_changed (GdmDisplay             *display,
                  * if there isn't one.
                  */
                 if (is_local &&
-                    (g_strcmp0 (session_class, "greeter") != 0 || factory->active_vt == GDM_INITIAL_VT)) {
+                    (g_strcmp0 (session_class, "greeter") != 0)) {
                         /* reset num failures */
                         factory->num_failures = 0;
 
