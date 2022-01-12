@@ -980,9 +980,6 @@ get_max_retries_error_message (GdmSessionWorker *worker)
         if (g_strcmp0 (worker->priv->service, "gdm-password") == 0)
                 return _("You reached the maximum password authentication attempts, please try another method");
 
-        if (g_strcmp0 (worker->priv->service, "gdm-pin") == 0)
-                return _("You reached the maximum PIN authentication attempts, please try another method");
-
         if (g_strcmp0 (worker->priv->service, "gdm-autologin") == 0)
                 return _("You reached the maximum auto login attempts, please try another authentication method");
 
@@ -1000,9 +997,6 @@ get_generic_error_message (GdmSessionWorker *worker)
 {
         if (g_strcmp0 (worker->priv->service, "gdm-password") == 0)
                 return _("Sorry, password authentication didn’t work. Please try again.");
-
-        if (g_strcmp0 (worker->priv->service, "gdm-pin") == 0)
-                return _("Sorry, PIN authentication didn’t work. Please try again.");
 
         if (g_strcmp0 (worker->priv->service, "gdm-autologin") == 0)
                 return _("Sorry, auto login didn’t work. Please try again.");
