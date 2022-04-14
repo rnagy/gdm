@@ -1,5 +1,5 @@
 project('gdm', 'c',
-  version: '41.3',
+  version: '42.0',
   license: 'GPL2+',
   meson_version: '>= 0.50',
 )
@@ -39,8 +39,10 @@ config_h_dir = include_directories('.')
 # Dependencies
 if host_machine.system() == 'linux'
   udev_dep = dependency('udev')
+  gudev_dep = dependency('gudev-1.0', version: '>= 232')
 else
   udev_dep = declare_dependency()
+  gudev_dep = declare_dependency()
   udev_dir = '/nonexistent'
 endif
 
@@ -254,6 +256,7 @@ conf.set_quoted('SYSTEMD_X_SERVER', systemd_x_server)
 conf.set('WITH_PLYMOUTH', plymouth_dep.found())
 conf.set_quoted('X_SERVER', x_bin)
 conf.set_quoted('X_PATH', x_path)
+conf.set('HAVE_UDEV', gudev_dep.found())
 conf.set('HAVE_UT_UT_HOST', utmp_has_host_field)
 conf.set('HAVE_UT_UT_PID', utmp_has_pid_field)
 conf.set('HAVE_UT_UT_ID', utmp_has_id_field)
