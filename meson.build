@@ -39,12 +39,13 @@ config_h_dir = include_directories('.')
 # Dependencies
 if host_machine.system() == 'linux'
   udev_dep = dependency('udev')
-  gudev_dep = dependency('gudev-1.0', version: '>= 232')
 else
   udev_dep = declare_dependency()
   gudev_dep = declare_dependency()
   udev_dir = '/nonexistent'
 endif
+
+gudev_dep = dependency('gudev-1.0', version: '>= 232', required: false)
 
 glib_min_version = '2.56.0'
 
