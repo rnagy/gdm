@@ -62,7 +62,6 @@ accountsservice_dep = dependency('accountsservice', version: '>= 0.6.35')
 xcb_dep = dependency('xcb')
 keyutils_dep = dependency('libkeyutils', required: false)
 libselinux_dep = dependency('libselinux', required: get_option('selinux'))
-libconsolekit_dep = dependency('libconsolekit')
 
 # udev
 if udev_dir == ''
@@ -113,7 +112,7 @@ if host_machine.system() == 'linux'
   libsystemd_dep = dependency('libsystemd')
 else
   systemd_dep = declare_dependency()
-  libsystemd_dep = declare_dependency()
+  libsystemd_dep = dependency('libconsolekit')
 endif
 if host_machine.system() == 'linux'
   systemd_multiseat_x = find_program('systemd-multi-seat-x',

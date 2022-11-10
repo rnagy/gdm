@@ -34,6 +34,8 @@
 #endif
 
 #include <systemd/sd-login.h>
+#elif defined(WITH_CONSOLE_KIT)
+#include <ConsoleKit/sd-login.h>
 #endif
 
 #include "gdm-common.h"
