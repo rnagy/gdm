@@ -62,6 +62,7 @@ accountsservice_dep = dependency('accountsservice', version: '>= 0.6.35')
 xcb_dep = dependency('xcb')
 keyutils_dep = dependency('libkeyutils', required: false)
 libselinux_dep = dependency('libselinux', required: get_option('selinux'))
+libconsolekit_dep = dependency('libconsolekit')
 
 # udev
 if udev_dir == ''

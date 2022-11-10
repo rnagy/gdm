@@ -15,6 +15,7 @@ libgdmcommon_deps = [
   gobject_dep,
   gio_dep,
   gio_unix_dep,
+  libconsolekit_dep,
 ]
 
 if libselinux_dep.found()

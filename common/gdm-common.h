@@ -41,36 +41,6 @@
 #define CK_SEAT_INTERFACE    "org.freedesktop.ConsoleKit.Seat"
 #define CK_SESSION_INTERFACE "org.freedesktop.ConsoleKit.Session"
 #define SEAT_ID              "/org/freedesktop/ConsoleKit/Seat1"
-
-int
-sd_pid_get_session(pid_t pid, char **session);
-
-int
-sd_session_get_uid(const char *session,
-                   uid_t *uid);
-
-int
-sd_session_get_class(const char *session, char **class);
-
-int
-sd_session_get_seat(const char *session,
-                    char      **seat);
-
-int
-sd_seat_get_sessions(const char   *seat,
-                     char       ***sessions,
-                     uid_t       **uid,
-                     unsigned int *n_uids);
-
-int
-sd_session_get_state(const char *session, char **state);
-
-int
-sd_session_get_service(const char *session,
-                       char **service);
-
-int
-sd_seat_can_graphical(const char *seat);
 #endif
 
 #define        VE_IGNORE_EINTR(expr) \
