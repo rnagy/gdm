@@ -44,7 +44,7 @@ pam_sm_authenticate (pam_handle_t  *pamh,
 #ifdef HAVE_KEYUTILS
         long r;
         size_t cached_passwords_length;
-        char *cached_passwords = NULL;
+        void *cached_passwords = NULL;
         char *last_cached_password = NULL;
         key_serial_t serial;
         size_t i;
@@ -70,7 +70,7 @@ pam_sm_authenticate (pam_handle_t  *pamh,
         */
         last_cached_password = cached_passwords;
         for (i = 0; i < cached_passwords_length; i++) {
-                last_cached_password = cached_passwords + i;
+                last_cached_password = ((char *) cached_passwords) + i;
                 i += strlen (last_cached_password);
         }
 
