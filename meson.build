@@ -110,18 +110,19 @@ endif
 if host_machine.system() == 'linux'
   systemd_dep = dependency('systemd')
   libsystemd_dep = dependency('libsystemd')
+  systemd_multiseat_x = find_program('systemd-multi-seat-x',
+    required: false,
+    dirs: [
+      systemd_dep.get_pkgconfig_variable('systemdutildir'),
+      '/lib/systemd',
+      '/usr/lib/systemd',
+    ])
+  systemd_x_server = systemd_multiseat_x.found()? systemd_multiseat_x.path() : '/lib/systemd/systemd-multi-seat-x'
 else
   systemd_dep = declare_dependency()
   libsystemd_dep = dependency('libconsolekit')
+  systemd_x_server = '/lib/systemd/systemd-multi-seat-x'
 endif
-systemd_multiseat_x = find_program('systemd-multi-seat-x',
-  required: false,
-  dirs: [
-    systemd_dep.get_pkgconfig_variable('systemdutildir'),
-    '/lib/systemd',
-    '/usr/lib/systemd',
-  ])
-systemd_x_server = systemd_multiseat_x.found()? systemd_multiseat_x.path() : '/lib/systemd/systemd-multi-seat-x'
 # Plymouth
 plymouth_dep = dependency('ply-boot-client', required: get_option('plymouth'))
 # Check for Solaris auditing API (ADT)

@@ -247,27 +247,27 @@ open_ck_session (GdmSessionWorker  *worker)
         const char       *display_hostname;
         gint32            uid;
 
-        g_assert (worker->priv->session_cookie == NULL);
+        g_assert (worker->session_cookie == NULL);
 
-        if (worker->priv->x11_display_name != NULL) {
-                display_name = worker->priv->x11_display_name;
+        if (worker->x11_display_name != NULL) {
+                display_name = worker->x11_display_name;
         } else {
                 display_name = "";
         }
-        if (worker->priv->hostname != NULL) {
-                display_hostname = worker->priv->hostname;
+        if (worker->hostname != NULL) {
+                display_hostname = worker->hostname;
         } else {
                 display_hostname = "";
         }
-        if (worker->priv->display_device != NULL) {
-                display_device = worker->priv->display_device;
+        if (worker->display_device != NULL) {
+                display_device = worker->display_device;
         } else {
                 display_device = "";
         }
 
-        g_assert (worker->priv->username != NULL);
+        g_assert (worker->username != NULL);
 
-        gdm_get_pwent_for_name (worker->priv->username, &pwent);
+        gdm_get_pwent_for_name (worker->username, &pwent);
         if (pwent == NULL) {
                 goto out;
         }
@@ -290,21 +290,21 @@ open_ck_session (GdmSessionWorker  *worker)
         g_variant_builder_add_parsed (&builder, "('x11-display-device', <%s>)", display_device);
         g_variant_builder_add_parsed (&builder, "('x11-display', <%s>)", display_name);
         g_variant_builder_add_parsed (&builder, "('remote-host-name', <%s>)", display_hostname);
-        g_variant_builder_add_parsed (&builder, "('is-local', <%b>)", worker->priv->display_is_local);
+        g_variant_builder_add_parsed (&builder, "('is-local', <%b>)", worker->display_is_local);
 
-        worker->priv->session_type = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_TYPE");
-        if (worker->priv->session_type != NULL) {
-                g_variant_builder_add_parsed (&builder, "('session-type', <%s>)", worker->priv->session_type);
+        worker->session_type = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_TYPE");
+        if (worker->session_type != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-type', <%s>)", worker->session_type);
         }
 
-        worker->priv->session_class = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_CLASS");
-        if (worker->priv->session_class != NULL) {
-                g_variant_builder_add_parsed (&builder, "('session-class', <%s>)", worker->priv->session_class);
+        worker->session_class = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_CLASS");
+        if (worker->session_class != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-class', <%s>)", worker->session_class);
         }
 
-        worker->priv->session_service = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_SERVICE");
-        if (worker->priv->session_service != NULL) {
-                g_variant_builder_add_parsed (&builder, "('session-service', <%s>)", worker->priv->session_service);
+        worker->session_service = gdm_session_worker_get_environment_variable (worker, "XDG_SESSION_SERVICE");
+        if (worker->session_service != NULL) {
+                g_variant_builder_add_parsed (&builder, "('session-service', <%s>)", worker->session_service);
         }
 
         parameters = g_variant_builder_end (&builder);
@@ -328,12 +328,12 @@ open_ck_session (GdmSessionWorker  *worker)
                 goto out;
         }
 
-        g_variant_get (reply, "(s)", &worker->priv->session_cookie);
+        g_variant_get (reply, "(s)", &worker->session_cookie);
 
         g_variant_unref (reply);
 
 out:
-        return worker->priv->session_cookie != NULL;
+        return worker->session_cookie != NULL;
 }
 
 static void
@@ -344,7 +344,7 @@ close_ck_session (GdmSessionWorker *worker)
         GError           *error = NULL;
         gboolean          was_closed;
 
-        if (worker->priv->session_cookie == NULL) {
+        if (worker->session_cookie == NULL) {
                 return;
         }
 
@@ -364,7 +364,7 @@ close_ck_session (GdmSessionWorker *worker)
                                              CK_MANAGER_PATH,
                                              CK_MANAGER_INTERFACE,
                                              "CloseSession",
-                                             g_variant_new ("(s)", worker->priv->session_cookie),
+                                             g_variant_new ("(s)", worker->session_cookie),
                                              G_VARIANT_TYPE ("(b)"),
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
@@ -386,7 +386,7 @@ close_ck_session (GdmSessionWorker *worker)
         g_variant_unref (reply);
 
 out:
-        g_clear_pointer (&worker->priv->session_cookie,
+        g_clear_pointer (&worker->session_cookie,
                          (GDestroyNotify) g_free);
 }
 
@@ -414,7 +414,7 @@ get_ck_session_id (GdmSessionWorker *worker)
                                              CK_MANAGER_PATH,
                                              CK_MANAGER_INTERFACE,
                                              "GetSessionForCookie",
-                                             g_variant_new ("(s)", worker->priv->session_cookie),
+                                             g_variant_new ("(s)", worker->session_cookie),
                                              G_VARIANT_TYPE ("(o)"),
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
@@ -1932,10 +1932,10 @@ register_ck_session (GdmSessionWorker *worker)
 {
         open_ck_session (worker);
 
-        if (worker->priv->session_cookie != NULL) {
+        if (worker->session_cookie != NULL) {
                 gdm_session_worker_set_environment_variable (worker,
                                                              "XDG_SESSION_COOKIE",
-                                                             worker->priv->session_cookie);
+                                                             worker->session_cookie);
         }
 }
 #endif
