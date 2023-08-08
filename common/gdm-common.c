@@ -381,10 +381,13 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              NULL, &local_error);
 #elif defined(WITH_CONSOLE_KIT)
         gboolean ret;
+        gchar *seat_path;
+
+        seat_path = g_build_path("/", CK_PATH, seat_id, NULL);
 
         reply = g_dbus_connection_call_sync (connection,
                                              CK_NAME,
-                                             seat_id,
+                                             seat_path,
                                              CK_SEAT_INTERFACE,
                                              "CanActivateSessions",
                                              NULL,
@@ -404,7 +407,7 @@ gdm_activate_session_by_id (GDBusConnection *connection,
 
         reply = g_dbus_connection_call_sync (connection,
                                              CK_NAME,
-                                             seat_id,
+                                             seat_path,
                                              CK_SEAT_INTERFACE,
                                              "ActivateSession",
                                              g_variant_new ("(o)", session_id),
@@ -412,6 +415,8 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
                                              NULL, &local_error);
+
+        g_free(seat_path);
 #endif
         if (reply == NULL) {
                 g_warning ("Unable to activate session: %s", local_error->message);

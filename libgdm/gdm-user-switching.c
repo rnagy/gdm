@@ -92,9 +92,13 @@ activate_session_id (GDBusConnection  *connection,
                                              -1,
                                              cancellable, error);
 #elif defined(WITH_CONSOLE_KIT)
+        gchar *seat_path;
+
+        seat_path = g_build_path("/", CK_PATH, seat_id, NULL);
+
         reply = g_dbus_connection_call_sync (connection,
                                              CK_NAME,
-                                             seat_id,
+                                             seat_path,
                                              CK_SEAT_INTERFACE,
                                              "ActivateSession",
                                              g_variant_new ("(o)", session_id),
@@ -102,6 +106,8 @@ activate_session_id (GDBusConnection  *connection,
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
                                              NULL, error);
+
+        g_free(seat_path);
 #endif
         if (reply == NULL) {
                 g_prefix_error (error, _("Unable to activate session: "));
