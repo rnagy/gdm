@@ -1237,7 +1237,7 @@ display_is_on_seat0 (GdmDisplay *display)
 
         g_object_get (G_OBJECT (display), "seat-id", &seat_id, NULL);
 
-        if (g_strcmp0 (seat_id, SEAT_ID) != 0) {
+        if (g_strcmp0 (seat_id, "seat0") != 0) {
             is_on_seat0 = FALSE;
         }
 

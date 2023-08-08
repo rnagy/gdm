@@ -753,7 +753,7 @@ get_display_for_seat (GdmLocalDisplayFactory *factory,
 
         store = gdm_display_factory_get_display_store (GDM_DISPLAY_FACTORY (factory));
 
-        is_seat0 = g_strcmp0 (seat_id, SEAT_ID) == 0;
+        is_seat0 = g_strcmp0 (seat_id, "seat0") == 0;
         if (is_seat0)
                 display = gdm_display_store_find (store, lookup_prepared_display_by_seat_id, (gpointer) seat_id);
         else
@@ -841,7 +841,7 @@ ensure_display_for_seat (GdmLocalDisplayFactory *factory,
                seat_supports_graphics = FALSE;
         }
 
-        is_seat0 = g_strcmp0 (seat_id, SEAT_ID) == 0;
+        is_seat0 = g_strcmp0 (seat_id, "seat0") == 0;
         if (is_seat0) {
                 gboolean falling_back;
 
