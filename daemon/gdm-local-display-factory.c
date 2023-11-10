@@ -546,7 +546,9 @@ on_display_status_changed (GdmDisplay             *display,
                       "session-id", &session_id,
                       NULL);
 
+#ifdef WITH_SYSTEMD
         sd_seat_get_active (seat_id, &seat_active_session, NULL);
+#endif
 
         status = gdm_display_get_status (display);
 
@@ -564,10 +566,14 @@ on_display_status_changed (GdmDisplay             *display,
                  * screen when the user logs out.
                  */
                 if (is_local &&
+#ifdef WITH_SYSTEMD
                     ((g_strcmp0 (session_class, "greeter") != 0 &&
                       (!seat_active_session || g_strcmp0(session_id, seat_active_session) == 0)) ||
                      (g_strcmp0 (seat_id, "seat0") == 0 && factory->active_vt == GDM_INITIAL_VT) ||
                      g_strcmp0 (seat_id, "seat0") != 0)) {
+#else
+                    (g_strcmp0 (session_class, "greeter") != 0)) {
+#endif
                         /* reset num failures */
                         factory->num_failures = 0;
 

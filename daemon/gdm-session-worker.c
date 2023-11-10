@@ -3272,7 +3272,9 @@ gdm_session_worker_handle_initialize (GdmDBusWorker         *object,
                 }
         }
 
+#ifdef WITH_SYSTEMD
         worker->seat0_has_vts = sd_seat_can_tty ("seat0");
+#endif
 
         worker->pending_invocation = invocation;
 
