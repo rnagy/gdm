@@ -1104,6 +1104,7 @@ allow_worker_function (GDBusAuthObserver *observer,
         return FALSE;
 }
 
+
 static void
 on_worker_connection_closed (GDBusConnection *connection,
                              gboolean         remote_peer_vanished,
@@ -1113,6 +1114,9 @@ on_worker_connection_closed (GDBusConnection *connection,
         self->pending_worker_connections =
             g_list_remove (self->pending_worker_connections,
                            connection);
+        g_object_set_data (G_OBJECT (connection),
+                           "gdm-dbus-worker-manager-interface",
+                           NULL);
         g_object_unref (connection);
 }
 
@@ -1143,6 +1147,10 @@ register_worker (GdmDBusWorkerManager  *worker_manager_interface,
         self->pending_worker_connections =
                 g_list_delete_link (self->pending_worker_connections,
                                     connection_node);
+
+        g_object_set_data (G_OBJECT (connection),
+                           "gdm-dbus-worker-manager-interface",
+                           NULL);
 
         g_signal_handlers_disconnect_by_func (connection,
                                               G_CALLBACK (on_worker_connection_closed),
@@ -1235,42 +1243,51 @@ export_worker_manager_interface (GdmSession      *self,
         GdmDBusWorkerManager *worker_manager_interface;
 
         worker_manager_interface = GDM_DBUS_WORKER_MANAGER (gdm_dbus_worker_manager_skeleton_new ());
-        g_signal_connect (worker_manager_interface,
-                          "handle-hello",
-                          G_CALLBACK (register_worker),
-                          self);
-        g_signal_connect (worker_manager_interface,
-                          "handle-info-query",
-                          G_CALLBACK (gdm_session_handle_info_query),
-                          self);
-        g_signal_connect (worker_manager_interface,
-                          "handle-secret-info-query",
-                          G_CALLBACK (gdm_session_handle_secret_info_query),
-                          self);
-        g_signal_connect (worker_manager_interface,
-                          "handle-info",
-                          G_CALLBACK (gdm_session_handle_info),
-                          self);
-        g_signal_connect (worker_manager_interface,
-                          "handle-problem",
-                          G_CALLBACK (gdm_session_handle_problem),
-                          self);
-        g_signal_connect (worker_manager_interface,
-                          "handle-choice-list-query",
-                          G_CALLBACK (gdm_session_handle_choice_list_query),
-                          self);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-hello",
+                                 G_CALLBACK (register_worker),
+                                 self,
+                                 0);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-info-query",
+                                 G_CALLBACK (gdm_session_handle_info_query),
+                                 self,
+                                 0);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-secret-info-query",
+                                 G_CALLBACK (gdm_session_handle_secret_info_query),
+                                 self,
+                                 0);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-info",
+                                 G_CALLBACK (gdm_session_handle_info),
+                                 self,
+                                 0);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-problem",
+                                 G_CALLBACK (gdm_session_handle_problem),
+                                 self,
+                                 0);
+        g_signal_connect_object (worker_manager_interface,
+                                 "handle-choice-list-query",
+                                 G_CALLBACK (gdm_session_handle_choice_list_query),
+                                 self,
+                                 0);
 
         g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (worker_manager_interface),
                                           connection,
                                           GDM_SESSION_DBUS_OBJECT_PATH,
                                           NULL);
+        g_object_set_data_full (G_OBJECT (connection),
+                                "gdm-dbus-worker-manager-interface",
+                                g_object_ref (worker_manager_interface),
+                                g_object_unref);
 }
 
 static void
 unexport_worker_manager_interface (GdmSession           *self,
                                    GdmDBusWorkerManager *worker_manager_interface)
 {
-
         g_dbus_interface_skeleton_unexport (G_DBUS_INTERFACE_SKELETON (worker_manager_interface));
 
         g_signal_handlers_disconnect_by_func (worker_manager_interface,
@@ -2258,8 +2275,10 @@ close_conversation (GdmSessionConversation *conversation)
 
         if (conversation->worker_proxy != NULL) {
                 GDBusConnection *connection = g_dbus_proxy_get_connection (G_DBUS_PROXY (conversation->worker_proxy));
+
                 g_dbus_connection_close_sync (connection, NULL, NULL);
         }
+
 }
 
 static void
@@ -3023,12 +3042,43 @@ stop_all_conversations (GdmSession *self)
 }
 
 static void
+free_pending_worker_connection (GdmSession      *self,
+                                GDBusConnection *connection)
+{
+        GdmDBusWorkerManager *worker_manager_interface;
+
+        worker_manager_interface = g_object_get_data (G_OBJECT (connection),
+                                                      "gdm-dbus-worker-manager-interface");
+        if (worker_manager_interface != NULL) {
+                g_dbus_interface_skeleton_unexport (worker_manager_interface);
+                g_object_set_data (G_OBJECT (connection),
+                                   "gdm-dbus-worker-manager-interface",
+                                   NULL);
+        }
+
+        g_object_unref (connection);
+}
+
+static void
+free_pending_worker_connections (GdmSession *self)
+{
+        GList *node;
+
+        for (node = self->pending_worker_connections; node != NULL; node = node->next) {
+                GDBusConnection *connection = node->data;
+
+                free_pending_worker_connection (self, connection);
+        }
+        g_list_free (self->pending_worker_connections);
+        self->pending_worker_connections = NULL;
+}
+
+static void
 do_reset (GdmSession *self)
 {
         stop_all_conversations (self);
 
-        g_list_free_full (self->pending_worker_connections, g_object_unref);
-        self->pending_worker_connections = NULL;
+        free_pending_worker_connections (self);
 
         g_free (self->selected_user);
         self->selected_user = NULL;
@@ -3192,7 +3242,7 @@ gdm_session_get_display_seat_id (GdmSession *self)
 {
         g_return_val_if_fail (GDM_IS_SESSION (self), NULL);
 
-        return g_strdup (self->display_seat_id);
+        return self->display_seat_id;
 }
 
 const char *
@@ -3368,11 +3418,8 @@ gdm_session_get_display_mode (GdmSession *self)
                  self->is_program_session? "yes" : "no",
                  self->display_seat_id);
 
-        /* Non-seat0 sessions share their X server with their login screen
-         * for now.
-         */
         if (g_strcmp0 (self->display_seat_id, "seat0") != 0) {
-                return GDM_SESSION_DISPLAY_MODE_REUSE_VT;
+                return GDM_SESSION_DISPLAY_MODE_LOGIND_MANAGED;
         }
 
 #ifdef ENABLE_USER_DISPLAY_SERVER

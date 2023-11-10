@@ -1,5 +1,5 @@
 project('gdm', 'c',
-  version: '44.1',
+  version: '45.0.1',
   license: 'GPL2+',
   meson_version: '>= 0.57',
 )
@@ -40,15 +40,8 @@ gdm_screenshot_dir = (get_option('screenshot-dir') != '')? get_option('screensho
 config_h_dir = include_directories('.')
 
 # Dependencies
-if host_machine.system() == 'linux'
-  udev_dep = dependency('udev')
-else
-  udev_dep = declare_dependency()
-  gudev_dep = declare_dependency()
-  udev_dir = '/nonexistent'
-endif
-
-gudev_dep = dependency('gudev-1.0', version: '>= 232', required: false)
+udev_dep = dependency('udev')
+gudev_dep = dependency('gudev-1.0', version: '>= 232')
 
 glib_min_version = '2.56.0'
 
@@ -107,9 +100,11 @@ if xdmcp_dep.found() and get_option('tcp-wrappers')
   libwrap_dep = cc.find_library('wrap')
 endif
 # systemd
-if host_machine.system() == 'linux'
-  systemd_dep = dependency('systemd')
+logind_provider = get_option('logind-provider')
+systemd_dep = dependency('systemd', required: false)
+if logind_provider == 'systemd'
   libsystemd_dep = dependency('libsystemd')
+  logind_dep = libsystemd_dep
   systemd_multiseat_x = find_program('systemd-multi-seat-x',
     required: false,
     dirs: [
@@ -119,9 +114,9 @@ if host_machine.system() == 'linux'
     ])
   systemd_x_server = systemd_multiseat_x.found()? systemd_multiseat_x.path() : '/lib/systemd/systemd-multi-seat-x'
 else
-  systemd_dep = declare_dependency()
-  libsystemd_dep = dependency('libconsolekit')
-  systemd_x_server = '/lib/systemd/systemd-multi-seat-x'
+  elogind_dep = dependency('libelogind')
+  logind_dep = elogind_dep
+  systemd_x_server = 'disabled'
 endif
 # Plymouth
 plymouth_dep = dependency('ply-boot-client', required: get_option('plymouth'))
@@ -269,7 +264,6 @@ conf.set('HAVE_UT_UT_TIME', utmp_has_time_field)
 conf.set('HAVE_UT_UT_TV', utmp_has_tv_field)
 conf.set('HAVE_UT_UT_SYSLEN', utmp_has_syslen_field)
 conf.set('ENABLE_IPV6', get_option('ipv6'))
-conf.set('HAVE_SIGWAITINFO', cc.has_function('sigwaitinfo'))
 configure_file(output: 'config.h', configuration: conf)
 
 # Subdirs
@@ -333,6 +327,7 @@ summary({
     'PAM Syslog': have_pam_syslog,
     'Supports PAM Extensions': pam_extensions_supported,
     'SeLinux': libselinux_dep.found(),
+    'Logind Provider': get_option('logind-provider'),
     'Use GDM Xsession': get_option('gdm-xsession'),
     'Use UserDisplayServer': get_option('user-display-server'),
     'Use SystemdJournal': get_option('systemd-journal'),

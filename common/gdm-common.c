@@ -325,8 +325,10 @@ gdm_generate_random_bytes (gsize    size,
         close (fd);
         return bytes;
 }
+
 static gboolean
 create_transient_display (GDBusConnection *connection,
+                          GCancellable    *cancellable,
                           GError         **error)
 {
         GError *local_error = NULL;
@@ -342,10 +344,10 @@ create_transient_display (GDBusConnection *connection,
                                              G_VARIANT_TYPE ("(o)"),
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
-                                             NULL, &local_error);
+                                             cancellable, &local_error);
         if (reply == NULL) {
                 g_warning ("Unable to create transient display: %s", local_error->message);
-                g_propagate_error (error, local_error);
+                g_propagate_prefixed_error (error, local_error, _("Unable to create transient display: "));
                 return FALSE;
         }
 
@@ -358,6 +360,7 @@ create_transient_display (GDBusConnection *connection,
 
 gboolean
 gdm_activate_session_by_id (GDBusConnection *connection,
+                            GCancellable    *cancellable,
                             const char      *seat_id,
                             const char      *session_id)
 {
@@ -378,7 +381,7 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              NULL,
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
-                                             NULL, &local_error);
+                                             cancellable, &local_error);
 #elif defined(WITH_CONSOLE_KIT)
         gboolean ret;
         gchar *seat_path;
@@ -394,7 +397,7 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              G_VARIANT_TYPE ("(b)"),
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
-                                             NULL, &local_error);
+                                             cancellable, &local_error);
         if (reply == NULL) {
                 g_warning ("Unable to determine if can activate sessions: %s", local_error ? local_error->message : "");
                 g_error_free (local_error);
@@ -414,10 +417,11 @@ gdm_activate_session_by_id (GDBusConnection *connection,
                                              NULL,
                                              G_DBUS_CALL_FLAGS_NONE,
                                              -1,
-                                             NULL, &local_error);
+                                             cancellable, &local_error);
 
         g_free(seat_path);
 #endif
+
         if (reply == NULL) {
                 g_warning ("Unable to activate session: %s", local_error->message);
                 g_error_free (local_error);
@@ -436,9 +440,6 @@ gdm_get_login_window_session_id (const char  *seat_id,
         gboolean   ret;
         int        res, i;
         char     **sessions;
-        char      *service_id;
-        char      *service_class;
-        char      *state;
 
         g_return_val_if_fail (session_id != NULL, FALSE);
 
@@ -455,6 +456,9 @@ gdm_get_login_window_session_id (const char  *seat_id,
         }
 
         for (i = 0; sessions[i]; i ++) {
+                char *service_id = NULL;
+                char *service_class = NULL;
+                char *state = NULL;
 
                 res = sd_session_get_class (sessions[i], &service_class);
                 if (res < 0) {
@@ -473,8 +477,8 @@ gdm_get_login_window_session_id (const char  *seat_id,
 
                 free (service_class);
 
-                ret = sd_session_get_state (sessions[i], &state);
-                if (ret < 0) {
+                res = sd_session_get_state (sessions[i], &state);
+                if (res < 0) {
                         if (res == -ENXIO)
                                 continue;
 
@@ -527,6 +531,7 @@ out:
 
 static gboolean
 goto_login_session (GDBusConnection  *connection,
+                    GCancellable     *cancellable,
                     GError          **error)
 {
         gboolean        ret;
@@ -564,7 +569,7 @@ goto_login_session (GDBusConnection  *connection,
 
         res = gdm_get_login_window_session_id (seat_id, &session_id);
         if (res && session_id != NULL) {
-                res = gdm_activate_session_by_id (connection, seat_id, session_id);
+                res = gdm_activate_session_by_id (connection, cancellable, seat_id, session_id);
 
                 if (res) {
                         ret = TRUE;
@@ -572,7 +577,7 @@ goto_login_session (GDBusConnection  *connection,
         }
 
         if (! ret && g_strcmp0 (seat_id, "seat0") == 0) {
-                res = create_transient_display (connection, error);
+                res = create_transient_display (connection, cancellable, error);
                 if (res) {
                         ret = TRUE;
                 }
@@ -585,20 +590,20 @@ goto_login_session (GDBusConnection  *connection,
 }
 
 gboolean
-gdm_goto_login_session (GError **error)
+gdm_goto_login_session (GCancellable *cancellable,
+                        GError      **error)
 {
-        GError *local_error;
-        GDBusConnection *connection;
+        g_autoptr(GDBusConnection) connection = NULL;
+        g_autoptr(GError) local_error = NULL;
 
-        local_error = NULL;
-        connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, NULL, &local_error);
+        connection = g_bus_get_sync (G_BUS_TYPE_SYSTEM, cancellable, &local_error);
         if (connection == NULL) {
                 g_debug ("Failed to connect to the D-Bus daemon: %s", local_error->message);
-                g_propagate_error (error, local_error);
+                g_propagate_error (error, g_steal_pointer (&local_error));
                 return FALSE;
         }
 
-        return goto_login_session (connection, error);
+        return goto_login_session (connection, cancellable, error);
 }
 
 static void
@@ -622,7 +627,7 @@ gdm_get_script_environment (const char *username,
         GHashTable    *hash;
         struct passwd *pwent;
 
-        env = g_ptr_array_new ();
+        env = g_ptr_array_new_with_free_func (g_free);
 
         /* create a hash table of current environment, then update keys has necessary */
         hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
@@ -768,7 +773,6 @@ gdm_run_script (const char *dir,
                             &status,
                             &error);
 
-        g_ptr_array_foreach (env, (GFunc)g_free, NULL);
         g_ptr_array_free (env, TRUE);
         g_strfreev (argv);
 
