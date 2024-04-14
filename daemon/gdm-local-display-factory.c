@@ -569,7 +569,9 @@ on_display_status_changed (GdmDisplay             *display,
 #ifdef WITH_SYSTEMD
                     ((g_strcmp0 (session_class, "greeter") != 0 &&
                       (!seat_active_session || g_strcmp0(session_id, seat_active_session) == 0)) ||
+#if defined(ENABLE_USER_DISPLAY_SERVER)
                      (g_strcmp0 (seat_id, "seat0") == 0 && factory->active_vt == GDM_INITIAL_VT) ||
+#endif
                      g_strcmp0 (seat_id, "seat0") != 0)) {
 #else
                     (g_strcmp0 (session_class, "greeter") != 0)) {
