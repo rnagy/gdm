@@ -45,7 +45,9 @@
 
 #include <json-glib/json-glib.h>
 
+#ifdef WITH_SYSTEMD
 #include <systemd/sd-login.h>
+#endif
 
 #include "gdm-session.h"
 #include "gdm-session-glue.h"
@@ -3383,6 +3385,7 @@ gdm_session_is_running (GdmSession *self)
 gboolean
 gdm_session_is_frozen (GdmSession *self)
 {
+#ifdef WITH_SYSTEMD
         g_autofree char *cgroup = NULL, *path = NULL, *data = NULL;
         g_auto (GStrv) arr = NULL;
 
@@ -3405,6 +3408,7 @@ gdm_session_is_frozen (GdmSession *self)
                 if (g_str_equal (arr[i], "frozen"))
                         return g_str_equal (arr[i + 1], "1");
         }
+#endif
         return FALSE;
 }
 
