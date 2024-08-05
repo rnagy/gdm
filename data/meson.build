@@ -170,6 +170,7 @@ if host_machine.system() == 'linux'
       assert(systemd_dep.found(), 'systemd required but not found, please provide a valid systemd system unit dir or disable it')
       systemd_systemunitdir = systemd_dep.get_variable(pkgconfig: 'systemdsystemunitdir')
     endif
+  endif
 
   systemduserunitdir = get_option('systemduserunitdir')
   if systemduserunitdir != 'no'
@@ -180,6 +181,7 @@ if host_machine.system() == 'linux'
       systemd_userunitdir = systemd_dep.get_variable(pkgconfig: 'systemduserunitdir',
                                                      pkgconfig_define: ['prefix', get_option('prefix')])
     endif
+  endif
 
   if systemdsystemunitdir != 'no'
     configure_file(
