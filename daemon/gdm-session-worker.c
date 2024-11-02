@@ -51,7 +51,9 @@
 
 #include <json-glib/json-glib.h>
 
+#ifdef ENABLE_X11_SUPPORT
 #include <X11/Xauth.h>
+#endif
 
 #ifdef WITH_SYSTEMD
 #include <systemd/sd-daemon.h>
@@ -1394,7 +1396,7 @@ _get_tty_for_pam (const char *x11_display_name,
 #endif
 }
 
-#ifdef PAM_XAUTHDATA
+#if defined(PAM_XAUTHDATA) && defined(ENABLE_X11_SUPPORT)
 static struct pam_xauth_data *
 _get_xauth_for_pam (const char *x11_authority_file)
 {
@@ -2638,7 +2640,7 @@ set_up_for_current_vt (GdmSessionWorker  *worker,
                 }
         }
 #endif
-#ifdef PAM_XAUTHDATA
+#if defined(PAM_XAUTHDATA) && defined(ENABLE_X11_SUPPORT)
         /* set XAUTHDATA */
         pam_xauth = _get_xauth_for_pam (worker->x11_authority_file);
         if (pam_xauth != NULL) {
@@ -3632,7 +3634,7 @@ on_reauthentication_verification_complete (GdmSession              *session,
                  service_name);
         gdm_session_reset (session);
 
-        gdm_dbus_worker_emit_reauthenticated (GDM_DBUS_WORKER (worker), service_name);
+        gdm_dbus_worker_emit_reauthenticated (GDM_DBUS_WORKER (worker), service_name, request->pid_of_caller);
 }
 
 static ReauthenticationRequest *

@@ -34,15 +34,15 @@ G_BEGIN_DECLS
 #define GDM_KEY_TIMED_LOGIN_DELAY "daemon/TimedLoginDelay"
 #define GDM_KEY_INITIAL_SETUP_ENABLE "daemon/InitialSetupEnable"
 #define GDM_KEY_PREFERRED_DISPLAY_SERVER "daemon/PreferredDisplayServer"
+#ifdef ENABLE_WAYLAND_SUPPORT
 #define GDM_KEY_WAYLAND_ENABLE "daemon/WaylandEnable"
+#endif
+#ifdef ENABLE_X11_SUPPORT
 #define GDM_KEY_XORG_ENABLE "daemon/XorgEnable"
+#endif
 #define GDM_KEY_REMOTE_LOGIN_ENABLE "daemon/RemoteLoginEnable"
 
 #define GDM_KEY_DEBUG "debug/Enable"
-
-#define GDM_KEY_INCLUDE "greeter/Include"
-#define GDM_KEY_EXCLUDE "greeter/Exclude"
-#define GDM_KEY_INCLUDE_ALL "greeter/IncludeAll"
 
 #define GDM_KEY_DISALLOW_TCP "security/DisallowTCP"
 #define GDM_KEY_ALLOW_REMOTE_AUTOLOGIN "security/AllowRemoteAutoLogin"
@@ -56,7 +56,6 @@ G_BEGIN_DECLS
 #define GDM_KEY_UDP_PORT "xdmcp/Port"
 #define GDM_KEY_INDIRECT "xdmcp/HonorIndirect"
 #define GDM_KEY_MAX_WAIT_INDIRECT "xdmcp/MaxWaitIndirect"
-#define GDM_KEY_PING_INTERVAL "xdmcp/PingIntervalSeconds"
 #define GDM_KEY_WILLING "xdmcp/Willing"
 
 #define GDM_KEY_MULTICAST "chooser/Multicast"

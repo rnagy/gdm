@@ -55,17 +55,6 @@ ENV{NVIDIA_SUSPEND}!="enabled", GOTO="gdm_disable_wayland"
 LABEL="gdm_nvidia_suspend_end"
 LABEL="gdm_nvidia_end"
 
-# If this machine has an internal panel, take note, since it's probably a laptop
-# FIXME: It could be "ghost connectors" make this pop positive for some workstations
-# in the wild. If so, we may have to fallback to looking at the chassis type from
-# dmi data or acpi
-KERNEL!="card[0-9]-eDP-*", GOTO="gdm_laptop_check_end"
-SUBSYSTEM!="drm", GOTO="gdm_laptop_check_end"
-ACTION!="add", GOTO="gdm_laptop_check_end"
-RUN+="/usr/bin/touch /run/udev/gdm-machine-is-laptop"
-GOTO="gdm_hybrid_nvidia_laptop_check"
-LABEL="gdm_laptop_check_end"
-
 # If this is a hybrid graphics setup, take note
 KERNEL!="card[1-9]*", GOTO="gdm_hybrid_graphics_check_end"
 KERNEL=="card[1-9]-*", GOTO="gdm_hybrid_graphics_check_end"
@@ -76,16 +65,8 @@ ENV{GDM_NUMBER_OF_GRAPHICS_CARDS}=="1", RUN+="/usr/bin/rm -f /run/udev/gdm-machi
 ENV{GDM_NUMBER_OF_GRAPHICS_CARDS}!="1", RUN+="/usr/bin/touch /run/udev/gdm-machine-has-hybrid-graphics"
 LABEL="gdm_hybrid_graphics_check_end"
 
-# If this is a hybrid graphics laptop with vendor nvidia driver, disable wayland
-LABEL="gdm_hybrid_nvidia_laptop_check"
-TEST!="/run/udev/gdm-machine-is-laptop", GOTO="gdm_hybrid_nvidia_laptop_check_end"
-TEST!="/run/udev/gdm-machine-has-hybrid-graphics", GOTO="gdm_hybrid_nvidia_laptop_check_end"
-TEST!="/run/udev/gdm-machine-has-vendor-nvidia-driver", GOTO="gdm_hybrid_nvidia_laptop_check_end"
-GOTO="gdm_disable_wayland"
-LABEL="gdm_hybrid_nvidia_laptop_check_end"
-
 # Disable wayland in situation where we're in a guest with a virtual gpu and host passthrough gpu
-LABEL="gdm_virt_passthrough_check"
+#LABEL="gdm_virt_passthrough_check"
 TEST!="/run/udev/gdm-machine-has-hybrid-graphics", GOTO="gdm_virt_passthrough_check_end"
 TEST!="/run/udev/gdm-machine-has-virtual-gpu", GOTO="gdm_virt_passthrough_check_end"
 TEST!="/run/udev/gdm-machine-has-hardware-gpu", GOTO="gdm_virt_passthrough_check_end"
@@ -93,7 +74,7 @@ GOTO="gdm_disable_wayland"
 LABEL="gdm_virt_passthrough_check_end"
 
 # Disable wayland when there are multiple virtual gpus
-LABEL="gdm_virt_multi_gpu_check"
+#LABEL="gdm_virt_multi_gpu_check"
 TEST!="/run/udev/gdm-machine-has-hybrid-graphics", GOTO="gdm_virt_multi_gpu_check_end"
 TEST!="/run/udev/gdm-machine-has-virtual-gpu", GOTO="gdm_virt_multi_gpu_check_end"
 TEST=="/run/udev/gdm-machine-has-hardware-gpu", GOTO="gdm_virt_multi_gpu_check_end"
@@ -107,10 +88,6 @@ ACTION!="add", GOTO="gdm_nvidia_drm_end"
 ATTR{parameters/modeset}!="Y", GOTO="gdm_disable_wayland"
 LABEL="gdm_nvidia_drm_end"
 
-GOTO="gdm_end"
-
-LABEL="gdm_prefer_xorg"
-RUN+="@libexecdir@/gdm-runtime-config set daemon PreferredDisplayServer xorg"
 GOTO="gdm_end"
 
 LABEL="gdm_disable_wayland"
