@@ -227,11 +227,13 @@ if get_option('gdm-xsession') and have_x11_support
 endif
 
 # Polkit
-configure_file(
-  input: 'polkit-gdm.rules.in',
-  output: '20-gdm.rules',
-  configuration: {
-    'GDM_USERNAME': get_option('user'),
-  },
-  install_dir: get_option('datadir') / 'polkit-1' / 'rules.d',
-)
+if host_machine.system() == 'linux'
+  configure_file(
+    input: 'polkit-gdm.rules.in',
+    output: '20-gdm.rules',
+    configuration: {
+      'GDM_USERNAME': get_option('user'),
+    },
+    install_dir: get_option('datadir') / 'polkit-1' / 'rules.d',
+  )
+endif
