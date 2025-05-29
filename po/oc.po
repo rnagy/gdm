@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: gdm HEAD\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gdm/issues/\n"
-"POT-Creation-Date: 2024-08-24 12:46+0000\n"
-"PO-Revision-Date: 2024-09-08 12:57+0200\n"
+"POT-Creation-Date: 2025-01-29 13:26+0000\n"
+"PO-Revision-Date: 2025-02-02 22:18+0100\n"
 "Last-Translator: Quentin PAGÈS\n"
 "Language-Team: Tot En Òc\n"
 "Language: oc\n"
@@ -17,7 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
-"X-Project-Style: gnome\n"
 
 #: chooser/gdm-host-chooser-dialog.c:139
 msgid "_Refresh"
@@ -35,19 +34,19 @@ msgstr "Se _connectar"
 msgid "Select System"
 msgstr "Seleccionatz un sistèma"
 
-#: chooser/gdm-host-chooser-widget.c:253
+#: chooser/gdm-host-chooser-widget.c:255
 msgid "XDMCP: Could not create XDMCP buffer!"
 msgstr "XDMCP : impossible de crear lo tampon XDMCP !"
 
-#: chooser/gdm-host-chooser-widget.c:259
+#: chooser/gdm-host-chooser-widget.c:261
 msgid "XDMCP: Could not read XDMCP header!"
 msgstr "XDMCP : impossible de legir l'entèsta XDMCP !"
 
-#: chooser/gdm-host-chooser-widget.c:265
+#: chooser/gdm-host-chooser-widget.c:267
 msgid "XDMCP: Incorrect XDMCP version!"
 msgstr "XDMCP : version incorrècta de XDMCP !"
 
-#: chooser/gdm-host-chooser-widget.c:271
+#: chooser/gdm-host-chooser-widget.c:273
 msgid "XDMCP: Unable to parse address"
 msgstr "XDMCP : impossible d'analisar l'adreça"
 
@@ -67,7 +66,7 @@ msgstr "Impossible d'identificar la session actuala : "
 msgid "Could not identify the current seat."
 msgstr "Impossible d'identificar lo pòste actual."
 
-#: daemon/gdm-display-access-file.c:278 daemon/gdm-display-access-file.c:299
+#: daemon/gdm-display-access-file.c:280 daemon/gdm-display-access-file.c:301
 #, c-format
 msgid "Could not find user “%s” on system"
 msgstr "Impossible de trobar l’utilizaire « %s » sul sistèma"
@@ -246,11 +245,11 @@ msgstr "Vòstre compte a un limit de temps qu'es ara escasut."
 msgid "Username:"
 msgstr "Identificant :"
 
-#: daemon/gdm-session-worker.c:1673 daemon/gdm-session-worker.c:1690
+#: daemon/gdm-session-worker.c:1675 daemon/gdm-session-worker.c:1692
 msgid "no user account available"
 msgstr "cap de compte d'utilizaire pas disponible"
 
-#: daemon/gdm-session-worker.c:1717
+#: daemon/gdm-session-worker.c:1719
 msgid "Unable to change to user"
 msgstr "Impossible de cambiar cap a l'utilizaire"
 
@@ -258,19 +257,19 @@ msgstr "Impossible de cambiar cap a l'utilizaire"
 msgid "GNOME Display Manager Wayland Session Launcher"
 msgstr "Aviador de session Wayland del gestionari de connexions GNOME"
 
-#: daemon/gdm-xdmcp-display-factory.c:612
+#: daemon/gdm-xdmcp-display-factory.c:614
 msgid "Could not create socket!"
 msgstr "Impossible de crear lo connector !"
 
-#: daemon/gdm-x-session.c:879
+#: daemon/gdm-x-session.c:882
 msgid "Run program through /etc/gdm/Xsession wrapper script"
 msgstr "Executar lo programa via un escript d'envolopa /etc/gdm/Xsession"
 
-#: daemon/gdm-x-session.c:880
+#: daemon/gdm-x-session.c:883
 msgid "Listen on TCP socket"
 msgstr "Escotar sus un socket TCP"
 
-#: daemon/gdm-x-session.c:892
+#: daemon/gdm-x-session.c:895
 msgid "GNOME Display Manager X Session Launcher"
 msgstr "Aviador de session X del gestionari de connexions GNOME"
 
@@ -338,13 +337,13 @@ msgstr "Sol l'utilizaire root pòt aviar GDM"
 msgid "GNOME Display Manager Session Worker"
 msgstr "Assistent de session del gestionari de connexions GNOME"
 
-#: data/org.gnome.login-screen.gschema.xml:6
+#: data/org.gnome.login-screen.gschema.xml:11
 msgid "Whether or not to allow fingerprint readers for login"
 msgstr ""
 "Indica se cal autorizar o pas los lectors d'emprentas digitalas per la "
 "connexion"
 
-#: data/org.gnome.login-screen.gschema.xml:9
+#: data/org.gnome.login-screen.gschema.xml:14
 msgid ""
 "The login screen can optionally allow users who have enrolled their "
 "fingerprints to log in using those prints."
@@ -352,12 +351,12 @@ msgstr ""
 "L'ecran de connexion pòt, en opcion, permetre als utilizaires qu'an "
 "enregistrat lors emprentas digitalas de se connectar en utilizant aquelas."
 
-#: data/org.gnome.login-screen.gschema.xml:16
+#: data/org.gnome.login-screen.gschema.xml:21
 msgid "Whether or not to allow smartcard readers for login"
 msgstr ""
 "Indica se cal autorizar o pas los lectors de cartas de piuse per la connexion"
 
-#: data/org.gnome.login-screen.gschema.xml:19
+#: data/org.gnome.login-screen.gschema.xml:24
 msgid ""
 "The login screen can optionally allow users who have smartcards to log in "
 "using those smartcards."
@@ -365,11 +364,11 @@ msgstr ""
 "L'ecran de connexion pòt, en opcion, permetre als utilizaires que "
 "possedisson de cartas de piuse de se connectar en utilizant aquelas."
 
-#: data/org.gnome.login-screen.gschema.xml:26
+#: data/org.gnome.login-screen.gschema.xml:31
 msgid "Whether or not to allow passwords for login"
 msgstr "Indica se cal autorizar o pas los senhals per la connexion"
 
-#: data/org.gnome.login-screen.gschema.xml:29
+#: data/org.gnome.login-screen.gschema.xml:34
 msgid ""
 "The login screen can be configured to disallow password authentication, "
 "forcing the user to use smartcard or fingerprint authentication."
@@ -378,12 +377,12 @@ msgstr ""
 "senhal, en obligant l'utilizaire d'utilizar l'autentificacion per carta de "
 "piuse o per emprenta digitala."
 
-#: data/org.gnome.login-screen.gschema.xml:36
-#: data/org.gnome.login-screen.gschema.xml:46
+#: data/org.gnome.login-screen.gschema.xml:41
+#: data/org.gnome.login-screen.gschema.xml:51
 msgid "Path to small image at top of user list"
 msgstr "Camin cap al pichon imatge en naut de la lista d'utilizaires"
 
-#: data/org.gnome.login-screen.gschema.xml:39
+#: data/org.gnome.login-screen.gschema.xml:44
 msgid ""
 "The login screen can optionally show a small image to provide site "
 "administrators and distributions a way to display branding."
@@ -391,7 +390,7 @@ msgstr ""
 "L'ecran de connexion pòt eventualament afichar un pichon imatge en naut de "
 "la lista d'utilizaires per fin de provesir als administrators del site."
 
-#: data/org.gnome.login-screen.gschema.xml:49
+#: data/org.gnome.login-screen.gschema.xml:54
 msgid ""
 "The fallback login screen can optionally show a small image to provide site "
 "administrators and distributions a way to display branding."
@@ -400,11 +399,11 @@ msgstr ""
 "naut de la lista d'utilizaires per fin de provesir als administrators del "
 "site."
 
-#: data/org.gnome.login-screen.gschema.xml:56
+#: data/org.gnome.login-screen.gschema.xml:61
 msgid "Avoid showing user list"
 msgstr "Evitar d'afichar la lista dels utilizaires"
 
-#: data/org.gnome.login-screen.gschema.xml:59
+#: data/org.gnome.login-screen.gschema.xml:64
 msgid ""
 "The login screen normally shows a list of available users to log in as. This "
 "setting can be toggled to disable showing the user list."
@@ -413,38 +412,57 @@ msgstr ""
 "pòdon connectar. Aqueste reglatge pòt èsser modificat per desactivar "
 "l'afichatge d'aquesta lista."
 
-#: data/org.gnome.login-screen.gschema.xml:66
+#: data/org.gnome.login-screen.gschema.xml:71
 msgid "Enable showing the banner message"
 msgstr "Activar l'afichatge del messatge de la bandièra"
 
-#: data/org.gnome.login-screen.gschema.xml:69
+#: data/org.gnome.login-screen.gschema.xml:74
 msgid "Set to true to show the banner message text."
 msgstr "Se verai, aficha lo tèxte del messatge de la bandièra."
 
-#: data/org.gnome.login-screen.gschema.xml:75
+#: data/org.gnome.login-screen.gschema.xml:80
+msgid "Banner message source"
+msgstr "Font del messatge de la bandièra"
+
+#: data/org.gnome.login-screen.gschema.xml:83
+msgid "The source of the text banner message on the login screen."
+msgstr ""
+"La font del messatge de la bandièra d'afichar dins la fenèstra de connexion."
+
+#: data/org.gnome.login-screen.gschema.xml:89
 msgid "Banner message text"
 msgstr "Tèxte del messatge de la bandièra"
 
-#: data/org.gnome.login-screen.gschema.xml:78
+#: data/org.gnome.login-screen.gschema.xml:92
 msgid "Text banner message to show in the login window."
 msgstr ""
 "Tèxte del messatge de la bandièra d'afichar dins la fenèstra de connexion."
 
-#: data/org.gnome.login-screen.gschema.xml:84
+#: data/org.gnome.login-screen.gschema.xml:98
+msgid "Banner message path"
+msgstr "Emplaçament del messatge de la bandièra"
+
+#: data/org.gnome.login-screen.gschema.xml:101
+msgid "Path to text file with banner message to show in the login window."
+msgstr ""
+"Emplaçament cap al fichièr tèxte del messatge de la bandièra d'afichar dins "
+"la fenèstra de connexion."
+
+#: data/org.gnome.login-screen.gschema.xml:107
 msgid "Disable showing the restart buttons"
 msgstr "Desactivar l'afichatge dels botons de reaviada"
 
-#: data/org.gnome.login-screen.gschema.xml:87
+#: data/org.gnome.login-screen.gschema.xml:110
 msgid "Set to true to disable showing the restart buttons in the login window."
 msgstr ""
 "Se verai, desactiva l'afichatge dels botons de reaviada dins la fenèstra de "
 "connexion."
 
-#: data/org.gnome.login-screen.gschema.xml:93
+#: data/org.gnome.login-screen.gschema.xml:116
 msgid "Number of allowed authentication failures"
 msgstr "Nombre de fracasses d'autentificacion autorizats"
 
-#: data/org.gnome.login-screen.gschema.xml:96
+#: data/org.gnome.login-screen.gschema.xml:119
 msgid ""
 "The number of times a user is allowed to attempt authentication, before "
 "giving up and going back to user selection."
@@ -526,15 +544,18 @@ msgstr "Afichar las opcions"
 
 #: utils/gdm-config.c:319
 msgid "No PAM module available for Password authentication"
-msgstr ""
+msgstr "I a pas cap de modul PAM disponible per l’autentificacion per senhal"
 
 #: utils/gdm-config.c:321
 msgid "No PAM module available for Smart Card authentication"
 msgstr ""
+"I a pas cap de modul PAM disponible per l’autentificacion per Smart Card"
 
 #: utils/gdm-config.c:323
 msgid "No PAM module available for Fingerprint authentication"
 msgstr ""
+"I a pas cap de modul PAM disponible per l’autentificacion per emprenta "
+"digitala"
 
 #: utils/gdm-config.c:354
 #, c-format
@@ -545,7 +566,7 @@ msgstr "« %s » requerís almens un argument"
 #: utils/gdm-config.c:363
 #, c-format
 msgid "“%s” can't be enabled and disabled at the same time"
-msgstr ""
+msgstr "« %s » se pòt pas activar e desactivar a l’encòp"
 
 #. TRANSLATORS: option is not a valid command “option-key” value
 #: utils/gdm-config.c:386
@@ -566,21 +587,22 @@ msgstr "Impossible de definir l’identificador de l’utilizaire a %u"
 #: utils/gdm-config.c:680
 msgid "No distro detected, no hook to run"
 msgstr ""
+"Cap de distribucion pas detectada, cap d’accion suplementària d’executar"
 
 #: utils/gdm-config.c:698
 #, c-format
 msgid "No valid args found to run hook “%s”"
-msgstr ""
+msgstr "Cap d’argument valid pas trobat per executar las accions de « %s »"
 
 #: utils/gdm-config.c:703
 #, c-format
 msgid "Running distro hook “%s”\n"
-msgstr ""
+msgstr "Execucion de las accions suplementàrias « %s »\n"
 
 #: utils/gdm-config.c:717
 #, c-format
 msgid "Distro hook “%s” requested stopping"
-msgstr ""
+msgstr "L’encadenament d’accions de distribucion « %s » a demandat l’arrèst"
 
 #: utils/gdm-config.c:730
 #, c-format
@@ -591,12 +613,20 @@ msgid ""
 "Error output:\n"
 "%s"
 msgstr ""
+"La cadena d’accion de la distribucion a fracassat amb l’estatus de sortida "
+"%d e l’error %s :\n"
+"Sortida estandarda : \n"
+"%s\n"
+"Sortida en error :\n"
+"%s"
 
 #. TRANSLATORS: Failed to set command “command” option key “option-key” via distro hook
 #: utils/gdm-config.c:780
 #, c-format
 msgid "Failed to set command “%s” option key “%s” via distro hook: "
 msgstr ""
+"Fracàs per definir la comanda « %s » amb la clau d'opcion « %s » via la "
+"cadena d’accions de distribucion : "
 
 #: utils/gdm-config.c:820
 #, c-format
@@ -609,28 +639,35 @@ msgstr "perfil dconf non trobat"
 
 #: utils/gdm-config.c:981
 msgid "dconf has no system-db configured"
-msgstr ""
+msgstr "dconf a pas cap de system-db configurat"
 
 #. TRANSLATORS: First value is a file path, second is an error message
 #: utils/gdm-config.c:1130
 #, c-format
 msgid "Failed to get the “%s” header comment: %s, was it modified?"
 msgstr ""
+"Fracàs al moment d'obténer lo comentari de l'entèsta « %s » : %s, foguèt "
+"modificat ?"
 
 #: utils/gdm-config.c:1133
 #, c-format
 msgid "File “%s” header comment does not match, was it modified?"
 msgstr ""
+"Lo comentari de l'entèsta del fichièr « %s » correspond pas, foguèt "
+"modificat ?"
 
 #. XXX: Fail with an error instead?
 #: utils/gdm-config.c:1261
 #, c-format
 msgid "No expected header found on lock file “%s”, was it modified?"
 msgstr ""
+"Pas cap d'entèsta esperada trobada dins lo fichièr de verrolhatge « %s », "
+"foguèt modificat ?"
 
 #: utils/gdm-config.c:1546
 msgid "Failed to run a required distro hook: "
 msgstr ""
+"Fracàs de l’execucion d’un encadenament d’accions de distribucion requerit : "
 
 #: utils/gdm-config.c:1562 utils/gdmflexiserver.c:45
 msgid "COMMAND"
@@ -649,6 +686,15 @@ msgid ""
 "\n"
 "Use “%s COMMAND --help” to get help on each command.\n"
 msgstr ""
+"Comandas:\n"
+"  help         Aficha aquesta informacion\n"
+"  password        Configurar l'autenticacion per senhal\n"
+"  fingerprint      Configurar l'autenticacion per emprenta\n"
+"  smartcard         Configurar l'autenticacion per carta intelligenta\n"
+"  reset     Reinicializar la configuracion per defaut\n"
+"  show       Afichar la configuracion actuala\n"
+"\n"
+"Utilizatz “%s COMANDA --ajuda” per obtenir d'ajuda sus cada comanda.\n"
 
 #: utils/gdm-config.c:1628
 msgid "Command options"

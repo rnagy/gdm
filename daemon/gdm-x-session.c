@@ -35,7 +35,10 @@
 #include <glib.h>
 #include <gio/gunixinputstream.h>
 #include <glib-unix.h>
+
+#ifdef ENABLE_X11_SUPPORT
 #include <X11/Xauth.h>
+#endif
 
 #define DISPLAY_FILENO (STDERR_FILENO + 1)
 #define BUS_ADDRESS_FILENO (DISPLAY_FILENO + 1)
@@ -114,7 +117,7 @@ prepare_auth_file (void)
         GError   *error = NULL;
         gboolean  prepared = FALSE;
         Xauth     auth_entry = { 0 };
-        char      localhost[HOST_NAME_MAX + 1] = "";
+        char      localhost[_POSIX_HOST_NAME_MAX + 1] = "";
 
         g_debug ("Preparing auth file for X server");
 
@@ -124,7 +127,7 @@ prepare_auth_file (void)
                 return NULL;
         }
 
-        if (gethostname (localhost, HOST_NAME_MAX) < 0) {
+        if (gethostname (localhost, _POSIX_HOST_NAME_MAX) < 0) {
                 strncpy (localhost, "localhost", sizeof (localhost) - 1);
         }
 
